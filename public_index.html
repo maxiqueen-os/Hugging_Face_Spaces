@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxiQueen OS v2 - API Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .status-card h3 {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .badge-online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .output.error {
+            background: #fee;
+            border-color: #f88;
+            color: #c33;
+        }
+
+        .output.success {
+            background: #efe;
+            border-color: #8f8;
+            color: #3c3;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .data-table th {
+            background: #f0f0f0;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 MaxiQueen OS v2</h1>
+            <p>API Dashboard - Hugging Face Spaces</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-card">
+                <h3>Servidor</h3>
+                <div class="status-badge" id="serverStatus">Verificando...</div>
+            </div>
+            <div class="status-card">
+                <h3>MongoDB</h3>
+                <div class="status-badge" id="mongoStatus">Verificando...</div>
+            </div>
+            <div class="status-card">
+                <h3>Versión</h3>
+                <div style="font-weight: 600; color: #667eea;">v2.0.0</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Guardar datos -->
+            <div class="card">
+                <h2>💾 Guardar Datos</h2>
+                <form id="saveForm">
+                    <div class="form-group">
+                        <label for="collection">Colección:</label>
+                        <select id="collection" required>
+                            <option value="">Seleccionar colección</option>
+                            <option value="usuarios">Usuarios</option>
+                            <option value="predicciones">Predicciones</option>
+                            <option value="logs">Logs</option>
+                            <option value="custom">Personalizada</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customCollection">Nombre personalizado:</label>
+                        <input type="text" id="customCollection" placeholder="solo si seleccionaste 'Personalizada'">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataJson">Datos (JSON):</label>
+                        <textarea id="dataJson" placeholder='{"nombre": "MaxiQueen", "edad": 25}' required></textarea>
+                    </div>
+
+                    <button type="submit">Guardar</button>
+                    <div class="loading" id="saveLoding">
+                        <span class="spinner"></span> Guardando...
+                    </div>
+                </form>
+                <div class="output" id="saveOutput" style="display:none;"></div>
+            </div>
+
+            <!-- Obtener datos -->
+            <div class="card">
+                <h2>📖 Obtener Datos</h2>
+                <form id="getForm">
+                    <div class="form-group">
+                        <label for="getCollection">Colección:</label>
+                        <select id="getCollection" required>
+                            <option value="">Seleccionar colección</option>
+                            <option value="usuarios">Usuarios</option>
+                            <option value="predicciones">Predicciones</option>
+                            <option value="logs">Logs</option>
+                            <option value="custom">Personalizada</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customGetCollection">Nombre personalizado:</label>
+                        <input type="text" id="customGetCollection" placeholder="solo si seleccionaste 'Personalizada'">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="limit">Límite de registros:</label>
+                        <input type="number" id="limit" value="10" min="1" max="100">
+                    </div>
+
+                    <button type="submit">Obtener</button>
+                    <div class="loading" id="getLoding">
+                        <span class="spinner"></span> Cargando...
+                    </div>
+                </form>
+                <div class="output" id="getOutput" style="display:none;"></div>
+            </div>
+
+            <!-- Estado detallado -->
+            <div class="card full-width">
+                <h2>📊 Estado del Sistema</h2>
+                <table class="data-table">
+                    <tr>
+                        <th>Componente</th>
+                        <th>Estado</th>
+                        <th>Detalles</th>
+                    </tr>
+                    <tr>
+                        <td>Servidor Node.js</td>
+                        <td id="serverDetail">Verificando...</td>
+                        <td id="serverDetailInfo">Puerto 7860</td>
+                    </tr>
+                    <tr>
+                        <td>MongoDB Atlas</td>
+                        <td id="mongoDetail">Verificando...</td>
+                        <td id="mongoDetailInfo">Conectando...</td>
+                    </tr>
+                    <tr>
+                        <td>CORS</td>
+                        <td style="color: #3c3;">✅ Habilitado</td>
+                        <td>Todos los orígenes permitidos</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const serverStatus = document.getElementById('serverStatus');
+        const mongoStatus = document.getElementById('mongoStatus');
+        const saveForm = document.getElementById('saveForm');
+        const getForm = document.getElementById('getForm');
+        const collectionSelect = document.getElementById('collection');
+        const getCollectionSelect = document.getElementById('getCollection');
+
+        // Verificar estado del servidor
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/');
+                const data = await response.json();
+                serverStatus.textContent = '✅ Online';
+                serverStatus.classList.add('badge-online');
+                document.getElementById('serverDetail').innerHTML = '✅ Online';
+                document.getElementById('serverDetailInfo').innerHTML = `v${data.version}`;
+            } catch (err) {
+                serverStatus.textContent = '❌ Offline';
+                serverStatus.classList.add('badge-offline');
+                document.getElementById('serverDetail').innerHTML = '❌ Offline';
+            }
+        }
+
+        // Verificar MongoDB
+        async function checkMongoDB() {
+            try {
+                const response = await fetch('/api/db-status');
+                const data = await response.json();
+                if (data.status === 'connected') {
+                    mongoStatus.innerHTML = '✅ Conectado';
+                    mongoStatus.classList.add('badge-online');
+                    document.getElementById('mongoDetail').innerHTML = '✅ Conectado';
+                    document.getElementById('mongoDetailInfo').innerHTML = 'MongoDB Atlas OK';
+                } else {
+                    mongoStatus.innerHTML = '⚠️ Desconectado';
+                    mongoStatus.classList.add('badge-offline');
+                    document.getElementById('mongoDetail').innerHTML = '⚠️ Desconectado';
+                    document.getElementById('mongoDetailInfo').innerHTML = 'No hay URI configurada';
+                }
+            } catch (err) {
+                mongoStatus.innerHTML = '❌ Error';
+                mongoStatus.classList.add('badge-offline');
+            }
+        }
+
+        // Guardar datos
+        saveForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const collection = collectionSelect.value === 'custom' ? 
+                document.getElementById('customCollection').value : 
+                collectionSelect.value;
+            
+            if (!collection) {
+                alert('Por favor especifica una colección');
+                return;
+            }
+
+            let dataObj;
+            try {
+                dataObj = JSON.parse(document.getElementById('dataJson').value);
+            } catch {
+                alert('JSON inválido');
+                return;
+            }
+
+            document.getElementById('saveLoding').style.display = 'block';
+            const output = document.getElementById('saveOutput');
+
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ collection, data: dataObj })
+                });
+                
+                const result = await response.json();
+                output.innerHTML = JSON.stringify(result, null, 2);
+                output.className = 'output success';
+                output.style.display = 'block';
+                document.getElementById('dataJson').value = '';
+            } catch (err) {
+                output.innerHTML = `Error: ${err.message}`;
+                output.className = 'output error';
+                output.style.display = 'block';
+            } finally {
+                document.getElementById('saveLoding').style.display = 'none';
+            }
+        });
+
+        // Obtener datos
+        getForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const collection = getCollectionSelect.value === 'custom' ? 
+                document.getElementById('customGetCollection').value : 
+                getCollectionSelect.value;
+            
+            if (!collection) {
+                alert('Por favor especifica una colección');
+                return;
+            }
+
+            const limit = document.getElementById('limit').value;
+            document.getElementById('getLoding').style.display = 'block';
+            const output = document.getElementById('getOutput');
+
+            try {
+                const response = await fetch(`/api/get/${collection}?limit=${limit}`);
+                const result = await response.json();
+                output.innerHTML = JSON.stringify(result, null, 2);
+                output.className = 'output success';
+                output.style.display = 'block';
+            } catch (err) {
+                output.innerHTML = `Error: ${err.message}`;
+                output.className = 'output error';
+                output.style.display = 'block';
+            } finally {
+                document.getElementById('getLoding').style.display = 'none';
+            }
+        });
+
+        // Verificar estado al cargar
+        checkServerStatus();
+        checkMongoDB();
+        setInterval(() => {
+            checkServerStatus();
+            checkMongoDB();
+        }, 30000); // Cada 30 segundos
+    </script>
+</body>
+</html>
