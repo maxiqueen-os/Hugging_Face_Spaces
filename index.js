@@ -34,7 +34,7 @@ async function initLocalIA() {
 }
 initLocalIA();
 
-// Ruta base para comprobar que el contenedor responda en la web
+// Ruta base para comprobar que el contenedor responda en la web (PUESTA ANTES DEL MANEJO DE RUTAS)
 app.get('/', (req, res) => {
     res.json({
         status: "online",
@@ -138,7 +138,7 @@ app.use((req, res) => {
     });
 });
 
-// Inicializar Servidor
+// Inicializar Servidor en la interfaz global expuesta
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`==================================================`);
     console.log(`🚀 Servidor Autónomo de MaxiQueen activo en puerto: ${PORT}`);
