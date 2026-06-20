@@ -1,27 +1,25 @@
-FROM node:20-alpine
+# 1. Cambiamos Alpine por la imagen estándar basada en Debian (Evita errores Ort::Exception de Transformers.js)
+FROM node:20
 
-# Establecer el directorio de trabajo
+# 2. Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos de dependencias
+# 3. Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias (sin solo=production para tener devDependencies si es necesario)
+# 4. Instalar dependencias limpiamente
 RUN npm install
 
-# Copiar el resto del código del backend
+# 5. Copiar el resto del código del backend (incluyendo la carpeta public e index.js)
 COPY . .
 
-# Hugging Face Spaces requiere exponer el puerto 7860 obligatoriamente
+# 6. Hugging Face Spaces requiere exponer el puerto 7860 obligatoriamente
 EXPOSE 7860
 
-# Establecer variables de entorno
+# 7. Establecer variables de entorno correctas
 ENV PORT=7860
 ENV NODE_ENV=production
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:7860', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || exit 1
-
-# Comando para iniciar tu servidor
+# 8. Dejamos que Hugging Face valide la red usando directamente el app.get('/') de tu index.js sin forzar bucles
+# Comando para iniciar tu servidor autónomo y abrir la IP global 0.0.0.0
 CMD ["node", "index.js"]
