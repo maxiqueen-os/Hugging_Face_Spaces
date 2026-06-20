@@ -17,4 +17,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push --force https://MaxiqueenOS:$HF_TOKEN@huggingface.co/spaces/MaxiqueenOS/maxiqueen-v2-backend main
+          git push --force https://MaxiqueenOS:$HF_TOKEN@huggingface.co/spaces/MaxiqueenOS/maxiqueen-v2-backend main:master
